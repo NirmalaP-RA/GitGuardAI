@@ -1,0 +1,12 @@
+@import "tailwindcss";
+@source "./**/*.{js,jsx,ts,tsx}"; /* Tells Tailwind to scan your React files */
+/* If you want to keep the custom font and scrollbars */
+:root {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: #020617; /* Matches slate-950 */
+}
