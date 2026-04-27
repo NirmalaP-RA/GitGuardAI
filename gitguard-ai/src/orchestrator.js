@@ -1,7 +1,7 @@
 const { getDiff } = require('./githubService');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const { postComment } = require('./githubService');
-
+const Review = require('./models/Review'); // Import the model
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 async function handlePullRequest(payload) {
@@ -33,8 +33,14 @@ async function handlePullRequest(payload) {
 
     // 4. Post Feedback back to GitHub [cite: 112, 114]
     if (responseText) {
-        await postComment(repo, prNumber, responseText);
+        // await postComment(repo, prNumber, responseText);
+        await Review.create({
+    repoName: repo,
+    prNumber: prNumber,
+    analysis: responseText
+});
     }
+
 }
 
 module.exports = { handlePullRequest };

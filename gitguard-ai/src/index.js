@@ -5,6 +5,10 @@ const { handlePullRequest } = require('./orchestrator');
 const app = express();
 app.use(express.json());
 
+const cors = require('cors');
+app.use(cors()); 
+
+
 // GitHub Webhook Endpoint [cite: 106, 114]
 app.post('/webhook', async (req, res) => {
     const event = req.headers['x-github-event'];
