@@ -1,13 +1,18 @@
+const dns = require('node:dns');
+dns.setServers(['8.8.8.8', '8.8.4.4']);
 require('dotenv').config();
 const express = require('express');
 const crypto = require('crypto');
 const cors = require('cors');
+const mongoose = require('mongoose');
 const { handlePullRequest } = require('../src/orchestrator');
-const Reviews = require('./models/Reviews');
+const Reviews = require('../src/models/Reviews');
 
 const app = express();
 app.use(express.json());
 app.use(cors());
+
+
 
 // Webhook Security Validation
 const verifySignature = (req) => {
@@ -20,7 +25,7 @@ const verifySignature = (req) => {
 // API for Dashboard
 app.get('/api/reviews', async (req, res) => {
     try {
-        const reviews = await Review.find().sort({ createdAt: -1 });
+        const reviews = await Reviews.find().sort({ createdAt: -1 });
         res.json(reviews);
     } catch (err) {
         console.error("DETAILED API ERROR:", err); // Look for this in your Node terminal!
@@ -45,6 +50,14 @@ app.post('/webhook', async (req, res) => {
     res.status(200).send('Event Received');
 });
 
-app.listen(process.env.PORT, () => {
-    console.log(`GitGuard Sentinel Active on Port ${process.env.PORT}`);
-});
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log('✅ Connected to MongoDB');
+    app.listen(process.env.PORT, () => {
+      console.log(`GitGuard Sentinel Active on Port ${process.env.PORT}`);
+    });
+  })
+  .catch(err => {
+    console.error('❌ DATABASE ERROR:', err.message); // This line is key!
+    process.exit(1);
+  });

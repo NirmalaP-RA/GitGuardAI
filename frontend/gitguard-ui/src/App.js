@@ -97,7 +97,7 @@ const App = () => {
         </div>
 
         <table className="w-full text-left">
-          <thead className="bg-slate-950/50 text-slate-500 text-xs uppercase">
+          <thead className="bg-slate-950/50 text-slate-400 text-xs uppercase">
             <tr>
               <th className="p-4">Repository</th>
               <th className="p-4">PR</th>

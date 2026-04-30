@@ -1,6 +1,6 @@
 const { getDiff, postComment } = require('./githubService');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const review = require('./models/Reviews');
+const Review = require('./models/Reviews');
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
