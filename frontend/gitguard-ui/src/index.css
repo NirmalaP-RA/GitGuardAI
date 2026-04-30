@@ -1,5 +1,6 @@
 @import "tailwindcss";
-@source "./**/*.{js,jsx,ts,tsx}"; /* Tells Tailwind to scan your React files */
+ @source "./src//*.{js,jsx,ts,tsx}"
+/* @source ".*.{js,jsx,ts,tsx}"; Tells Tailwind to scan your React files */
 /* If you want to keep the custom font and scrollbars */
 :root {
   color-scheme: dark;
