@@ -50,7 +50,9 @@ app.post('/webhook', async (req, res) => {
     res.status(200).send('Event Received');
 });
 
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect(process.env.MONGO_URI,{
+  family: 4 // Force IPv4
+})
   .then(() => {
     console.log('✅ Connected to MongoDB');
     app.listen(process.env.PORT, () => {
