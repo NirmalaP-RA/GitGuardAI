@@ -1,7 +1,9 @@
 Product Name: GitGuard AI 
-Project Title: Automated Pull Request Sentinel                                                                                             
-SUMMARY:GitGuard AI is an internal "AI-First" tool designed to automate the code review process. It functions as a "Sentinel" that listens for repository activity and provides immediate, actionable intelligence on code quality, security, and performance directly within the developer's workflow.  
-GitGuard AI, is an internal tool designed to function as an Automated Pull Request Sentinel. Its primary purpose is to listen for GitHub Webhooks and automatically review code changes for bugs, security vulnerabilities, or performance issues.
+
+Project Title: Automated Pull Request Sentinel                                                                                                                                                                                                                                                                
+SUMMARY:                                                                                                                                  
+GitGuard AI is an internal "AI-First" tool designed to automate the code review process. It functions as a "Sentinel" that listens for repository activity and provides immediate, actionable intelligence on code quality, security, and performance directly within the developer's workflow.  
+GitGuard AI, is an internal tool designed to function as an Automated Pull Request Sentinel. Its primary purpose is to listen for GitHub Webhooks and automatically review code changes for bugs, security vulnerabilities, or performance issues.                                      
 
 The Problem & Solution:
 •	The Problem: Standard code reviews can be slow, prone to human error, and often miss subtle security vulnerabilities.
@@ -22,7 +24,7 @@ Week 2:	Extraction->	Diff fetching and cleaning logic using Octokit.
 Week 3:	Feedback->	LLM analysis integration and automated PR commenting.
 Week 4:	Control	Internal dashboard for repository rules and history.
 
-Cognitive Architecture(that integrates real-time GitHub data with LLM reasoning):
+---------Cognitive Architecture(that integrates real-time GitHub data with LLM reasoning)----------
 The project is structured into four primary layers:
 
 1. The Interaction Layer (GitHub Integration)
