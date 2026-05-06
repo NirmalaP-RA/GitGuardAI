@@ -1,4 +1,4 @@
-Product Name: GitGuard 
+Product Name: GitGuard AI
 
 Project Title: Automated Pull Request Sentinel                                                                                                                                                                                                                                                                
 SUMMARY:                                                                                                                                  
