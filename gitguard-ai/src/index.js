@@ -10,25 +10,26 @@ const Reviews = require('../src/models/Reviews');
 
 const app = express();
 
-// IMPORTANT: Increase payload limit for large GitHub diffs
-app.use(express.json({ limit: '50mb' })); 
+// FIX: Capture the raw body for accurate signature verification
+app.use(express.json({ 
+    limit: '50mb',
+    verify: (req, res, buf) => { req.rawBody = buf; } 
+})); 
 app.use(cors());
 
-// Webhook Security Validation
 const verifySignature = (req) => {
     const signature = req.headers['x-hub-signature-256'];
     const secret = process.env.GITHUB_WEBHOOK_SECRET;
     
-    if (!signature || !secret) return false;
+    if (!signature || !secret || !req.rawBody) return false;
 
     const hmac = crypto.createHmac('sha256', secret);
-    // Use raw string if possible, but JSON.stringify is standard for most setups
-    const digest = 'sha256=' + hmac.update(JSON.stringify(req.body)).digest('hex');
+    // FIX: Update using the raw buffer, not a stringified JSON object
+    const digest = 'sha256=' + hmac.update(req.rawBody).digest('hex');
     
     return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(digest));
 };
 
-// API for Dashboard
 app.get('/api/reviews', async (req, res) => {
     try {
         const reviews = await Reviews.find().sort({ createdAt: -1 });
@@ -39,10 +40,8 @@ app.get('/api/reviews', async (req, res) => {
     }
 });
 
-// GitHub Webhook Endpoint
 app.post('/webhook', async (req, res) => {
     try {
-        // 1. Verify Secret
         if (!verifySignature(req)) {
             console.error("❌ Webhook Signature Mismatch!");
             return res.status(401).send('Invalid Signature');
@@ -52,36 +51,33 @@ app.post('/webhook', async (req, res) => {
         const payload = req.body;
 
         if (event === 'pull_request' && (payload.action === 'opened' || payload.action === 'synchronize')) {
-            console.log(`🔍 Analyzing PR: ${payload.pull_request.title}`);
+            console.log(`🔍 Analyzing PR #${payload.pull_request.number}: ${payload.pull_request.title}`);
             
-            // FIRE AND FORGET: Respond 202 (Accepted) immediately
             res.status(202).send('GitGuard is on it!');
 
-            // Process analysis in the background
-            // This ensures GitHub/ngrok don't timeout while waiting for the AI
+            // Handle analysis
             handlePullRequest(payload).then(() => {
                 console.log(`✅ Background processing complete for PR #${payload.pull_request.number}`);
             }).catch(err => {
-                console.error("❌ Background Processing Error:", err.message);
+                // If the error is a 429, we log it clearly here
+                if (err.message.includes('429')) {
+                    console.error(`⚠️ QUOTA EXCEEDED for PR #${payload.pull_request.number}. Consider switching to Gemini 1.5 Flash Lite.`);
+                } else {
+                    console.error("❌ Background Processing Error:", err.message);
+                }
             });
             
-            return; // Exit the function here
+            return;
         }
 
         res.status(200).send('Event ignored');
     } catch (err) {
         console.error("❌ WEBHOOK PROCESSING ERROR:", err);
-        // Only send 500 if we haven't already sent a response
-        if (!res.headersSent) {
-            res.status(500).send('Internal Server Error');
-        }
+        if (!res.headersSent) res.status(500).send('Internal Server Error');
     }
 });
 
-// Database Connection
-mongoose.connect(process.env.MONGO_URI, {
-    family: 4 // Force IPv4
-})
+mongoose.connect(process.env.MONGO_URI, { family: 4 })
 .then(() => {
     console.log('✅ Connected to MongoDB');
     const port = process.env.PORT || 3000;
@@ -93,6 +89,3 @@ mongoose.connect(process.env.MONGO_URI, {
     console.error('❌ DATABASE ERROR:', err.message);
     process.exit(1);
 });
-
-
-
