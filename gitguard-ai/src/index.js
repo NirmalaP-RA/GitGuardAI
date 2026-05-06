@@ -51,22 +51,30 @@ app.post('/webhook', async (req, res) => {
         const event = req.headers['x-github-event'];
         const payload = req.body;
 
-        // 2. Handle Logic
         if (event === 'pull_request' && (payload.action === 'opened' || payload.action === 'synchronize')) {
             console.log(`🔍 Analyzing PR: ${payload.pull_request.title}`);
             
-            // CRITICAL: We await this to ensure the DB save finishes before sending 200
-            // If handlePullRequest is NOT async, remove 'await' but ensure it calls a DB save
-            await handlePullRequest(payload); 
+            // FIRE AND FORGET: Respond 202 (Accepted) immediately
+            res.status(202).send('GitGuard is on it!');
+
+            // Process analysis in the background
+            // This ensures GitHub/ngrok don't timeout while waiting for the AI
+            handlePullRequest(payload).then(() => {
+                console.log(`✅ Background processing complete for PR #${payload.pull_request.number}`);
+            }).catch(err => {
+                console.error("❌ Background Processing Error:", err.message);
+            });
             
-            console.log(`✅ Successfully processed PR: ${payload.pull_request.number}`);
-            return res.status(200).send('Analysis Complete and Saved');
+            return; // Exit the function here
         }
 
-        res.status(200).send('Event ignored (not a relevant PR action)');
+        res.status(200).send('Event ignored');
     } catch (err) {
         console.error("❌ WEBHOOK PROCESSING ERROR:", err);
-        res.status(500).send('Internal Server Error during processing');
+        // Only send 500 if we haven't already sent a response
+        if (!res.headersSent) {
+            res.status(500).send('Internal Server Error');
+        }
     }
 });
 
