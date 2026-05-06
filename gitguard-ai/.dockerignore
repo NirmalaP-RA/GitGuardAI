@@ -7,7 +7,7 @@ npm-debug.log
 .env.local
 .env.*
 
-# Git metadata
+#Git metadata
 .git
 .gitignore
 
