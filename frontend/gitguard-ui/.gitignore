@@ -24,3 +24,6 @@ yarn-error.log*
 
 # tailwind
 /frontend/gitguard-ui/src/output.css
+
+#container
+Dockerfile
